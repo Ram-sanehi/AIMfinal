@@ -7,7 +7,7 @@ import { Empanelment as EmpanelmentSection } from "@/components/Empanelment";
 
 const EmpanelmentPage = () => {
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-[#070B14] text-[#F5F1E8] selection:bg-[#C9A24B]/30 selection:text-[#F5F1E8] overflow-x-hidden">
       <Navbar />
       <StockTicker />
 

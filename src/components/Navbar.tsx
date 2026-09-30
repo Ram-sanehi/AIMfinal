@@ -1,215 +1,619 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, Mail, Facebook, Instagram, Twitter, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { 
+  Menu, 
+  X, 
+  ChevronDown, 
+  ArrowRight,
+  Calculator,
+  Compass,
+  BookOpen,
+  FileText
+} from "lucide-react";
 
-const navLinks = [
-  { href: "/", label: "Home", external: false },
-  { href: "/about", label: "About", external: false },
-  { href: "/services", label: "Services", external: false },
-  { href: "https://insurancemall.alphaaim.in", label: "Insurance Mall", external: true },
-  { href: "/empanelment", label: "Empanelment", external: false },
-  { href: "/contact", label: "Contact", external: false },
+interface SubItem {
+  title: string;
+  href: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const toolsItems: SubItem[] = [
+  {
+    title: "Wealth Calculators",
+    href: "/calculators",
+    description: "Model SIP, retirement, tax savings & compounding.",
+    icon: Calculator,
+  },
+  {
+    title: "Risk Profile Quiz",
+    href: "/risk-profile",
+    description: "Scientific 10-point SEBI suitability assessment.",
+    icon: Compass,
+  },
 ];
 
-const MediumIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M13.54 12c0 3.77-3.03 6.82-6.77 6.82S0 15.77 0 12s3.03-6.82 6.77-6.82 6.77 3.05 6.77 6.82zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42zm3.04 0c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75c.66 0 1.19 2.58 1.19 5.75z" />
-  </svg>
-);
+const resourcesItems: SubItem[] = [
+  {
+    title: "Insights",
+    href: "/insights",
+    description: "Fiduciary commentary, market teardowns & tax notes.",
+    icon: BookOpen,
+  },
+  {
+    title: "Downloads & Forms",
+    href: "/downloads",
+    description: "Statutory onboarding KYC, agreements & disclosure PDFs.",
+    icon: FileText,
+  },
+];
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  // Dropdown states
+  const [openDropdown, setOpenDropdown] = useState<"tools" | "resources" | null>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Mobile accordions
+  const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
+
+  const lastScrollY = useRef(0);
   const location = useLocation();
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+
+          // Transparent over hero (< 30px), slim blurred ivory/navy bar when scrolled
+          setIsScrolled(currentScrollY > 30);
+
+          // Hide on scroll-down, show on scroll-up
+          if (currentScrollY <= 30) {
+            setIsVisible(true);
+          } else if (currentScrollY > lastScrollY.current + 6) {
+            setIsVisible(false);
+            setOpenDropdown(null);
+          } else if (currentScrollY < lastScrollY.current - 6) {
+            setIsVisible(true);
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close menus on route change
   useEffect(() => {
-    setIsOpen(false);
+    setIsMobileOpen(false);
+    setOpenDropdown(null);
+    setMobileToolsOpen(false);
+    setMobileResourcesOpen(false);
   }, [location.pathname]);
+
+  // Lock body scroll when mobile menu is active
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
+
+  // Close dropdown on click outside or on Escape
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const handleMouseEnter = (menu: "tools" | "resources") => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setOpenDropdown(menu);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150);
+  };
 
   return (
     <>
-      {/* Floating Header */}
       <motion.header
-        className={`fixed left-1/2 -translate-x-1/2 w-[95%] max-w-[1360px] z-50 transition-all duration-300 ${
-          scrolled
-            ? "top-4 moving-border-glow-nav backdrop-blur-lg rounded-2xl"
-            : "top-6 bg-[#030B22]/40 backdrop-blur-md border border-[#D4AF37]/15 shadow-[0_0_30px_rgba(212,175,55,0.03)] hover:shadow-[0_0_35px_rgba(212,175,55,0.08)] rounded-2xl"
+        initial={{ y: 0 }}
+        animate={{ y: isVisible ? 0 : -90 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-500 ${
+          isScrolled
+            ? "bg-[#070B14]/90 backdrop-blur-md border-b border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+            : "bg-transparent border-b border-transparent"
         }`}
       >
-        <div className="container mx-auto px-6">
-          <div className={`flex items-center justify-between transition-all duration-300 ${
-            scrolled ? "h-14" : "h-17"
-          }`}>
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg border border-[#D4AF37]/20 bg-slate-950">
-                <img src="/logo-circular1.png" alt="Alpha Investment Management" width="44" height="44" className="w-full h-full object-cover" loading="eager" decoding="async" />
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex items-center justify-between h-16 sm:h-18">
+            
+            {/* LEFT: Logo Lockup */}
+            <Link to="/" className="flex items-center gap-3 group focus:outline-none flex-shrink-0">
+              <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#C9A24B]/35 flex-shrink-0 bg-[#070B14] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                <img
+                  src="/logo-circular1.png"
+                  alt="Alpha Investment Management"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-[12px] md:text-[13px] font-display font-bold gold-text tracking-widest leading-none uppercase">Alpha Investment Management</h1>
+              <div className="flex flex-col">
+                <span className="font-serif text-base tracking-tight font-medium text-[#F5F1E8] group-hover:text-[#C9A24B] transition-colors duration-200">
+                  Alpha Investment
+                </span>
+                <span className="text-[9px] font-sans uppercase tracking-widest text-slate-400">
+                  SEBI RIA · INA000017348
+                </span>
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
-                link.external ? (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="relative text-[11px] font-semibold uppercase tracking-wider transition-colors py-1 hover:text-primary text-foreground/80 inline-flex items-center gap-1 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#D4AF37] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left after:duration-300"
-                  >
-                    {link.label}
-                    <ExternalLink className="h-2.5 w-2.5 opacity-50" />
-                  </a>
-                ) : (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className={`relative text-[11px] font-semibold uppercase tracking-wider transition-colors py-1 hover:text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#D4AF37] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left after:duration-300 ${
-                      location.pathname === link.href
-                        ? "text-primary"
-                        : "text-foreground/80"
+            {/* CENTER: Clean 5-Item Nav + Contact Link */}
+            <nav
+              ref={navRef}
+              className="hidden lg:flex items-center gap-7"
+              aria-label="Main Navigation"
+            >
+              {/* 1. Home */}
+              <Link
+                to="/"
+                className={`text-xs uppercase tracking-wider font-sans transition-colors py-1 relative ${
+                  location.pathname === "/"
+                    ? "text-[#C9A24B] font-medium"
+                    : "text-slate-300/80 hover:text-[#F5F1E8]"
+                }`}
+              >
+                Home
+                {location.pathname === "/" && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#C9A24B]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
+
+              {/* 2. About */}
+              <Link
+                to="/about"
+                className={`text-xs uppercase tracking-wider font-sans transition-colors py-1 relative ${
+                  location.pathname === "/about"
+                    ? "text-[#C9A24B] font-medium"
+                    : "text-slate-300/80 hover:text-[#F5F1E8]"
+                }`}
+              >
+                About
+                {location.pathname === "/about" && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#C9A24B]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
+
+              {/* 3. Services */}
+              <Link
+                to="/services"
+                className={`text-xs uppercase tracking-wider font-sans transition-colors py-1 relative ${
+                  location.pathname.startsWith("/services")
+                    ? "text-[#C9A24B] font-medium"
+                    : "text-slate-300/80 hover:text-[#F5F1E8]"
+                }`}
+              >
+                Services
+                {location.pathname.startsWith("/services") && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#C9A24B]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
+
+              {/* 4. Tools ▾ Dropdown */}
+              <div
+                className="relative py-2"
+                onMouseEnter={() => handleMouseEnter("tools")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "tools" ? null : "tools")}
+                  className={`text-xs uppercase tracking-wider font-sans transition-colors inline-flex items-center gap-1 focus:outline-none ${
+                    location.pathname === "/calculators" || location.pathname === "/risk-profile" || openDropdown === "tools"
+                      ? "text-[#C9A24B] font-medium"
+                      : "text-slate-300/80 hover:text-[#F5F1E8]"
+                  }`}
+                  aria-expanded={openDropdown === "tools"}
+                >
+                  <span>Tools</span>
+                  <ChevronDown
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                      openDropdown === "tools" ? "rotate-180 text-[#C9A24B]" : "text-slate-400"
                     }`}
-                  >
-                    {link.label}
-                    {location.pathname === link.href && (
-                      <motion.div
-                        layoutId="navbar-indicator"
-                        className="absolute -bottom-1 left-0 right-0 h-[2px] bg-[#D4AF37] rounded-full"
-                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                      />
-                    )}
-                  </Link>
-                )
-              ))}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {openDropdown === "tools" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="absolute top-full left-0 w-[300px] p-2 rounded-2xl bg-[#0B1220] border border-white/[0.12] shadow-2xl z-50 space-y-1"
+                    >
+                      {toolsItems.map((item) => {
+                        const Icon = item.icon;
+                        const isItemActive = location.pathname === item.href;
+                        return (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className={`flex items-start gap-3 p-3 rounded-xl transition-all group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A96E] ${
+                              isItemActive
+                                ? "bg-[#C9A24B]/10 border border-[#C9A24B]/20"
+                                : "hover:bg-white/[0.04] border border-transparent"
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-[#C9A24B] group-hover:scale-105 transition-transform shrink-0 mt-0.5">
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                              <p className="text-[13px] sm:text-[14px] font-sans font-semibold text-[#F5F1E8] group-hover:text-[#C9A24B] transition-colors">
+                                {item.title}
+                              </p>
+                              <p className="text-[12px] text-[#A8B0BD] font-sans font-light leading-snug">
+                                {item.description}
+                              </p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* 5. Resources ▾ Dropdown */}
+              <div
+                className="relative py-2"
+                onMouseEnter={() => handleMouseEnter("resources")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "resources" ? null : "resources")}
+                  className={`text-xs uppercase tracking-wider font-sans transition-colors inline-flex items-center gap-1 focus:outline-none ${
+                    location.pathname.startsWith("/insights") || location.pathname === "/downloads" || openDropdown === "resources"
+                      ? "text-[#C9A24B] font-medium"
+                      : "text-slate-300/80 hover:text-[#F5F1E8]"
+                  }`}
+                  aria-expanded={openDropdown === "resources"}
+                >
+                  <span>Resources</span>
+                  <ChevronDown
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                      openDropdown === "resources" ? "rotate-180 text-[#C9A24B]" : "text-slate-400"
+                    }`}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {openDropdown === "resources" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 w-[310px] p-2 rounded-2xl bg-[#090E1C]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl z-50 space-y-1"
+                    >
+                      {resourcesItems.map((item) => {
+                        const Icon = item.icon;
+                        const isItemActive = location.pathname === item.href;
+                        return (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className={`flex items-start gap-3 p-3 rounded-xl transition-all group ${
+                              isItemActive
+                                ? "bg-[#C9A24B]/10 border border-[#C9A24B]/20"
+                                : "hover:bg-white/[0.04] border border-transparent"
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-[#C9A24B] group-hover:scale-105 transition-transform shrink-0 mt-0.5">
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                              <p className="text-xs font-sans font-semibold text-[#F5F1E8] group-hover:text-[#C9A24B] transition-colors">
+                                {item.title}
+                              </p>
+                              <p className="text-[11px] text-slate-400 font-sans font-light leading-snug">
+                                {item.description}
+                              </p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Contact (Plain Link) */}
+              <Link
+                to="/contact"
+                className={`text-xs uppercase tracking-wider font-sans transition-colors py-1 relative ${
+                  location.pathname === "/contact"
+                    ? "text-[#C9A24B] font-medium"
+                    : "text-slate-300/80 hover:text-[#F5F1E8]"
+                }`}
+              >
+                Contact
+                {location.pathname === "/contact" && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#C9A24B]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
             </nav>
 
-            {/* CTA Button */}
-            <div className="hidden lg:flex items-center gap-4">
-              <Button asChild size="sm" className="gold-gradient text-primary-foreground hover:opacity-95 font-semibold text-[10px] uppercase tracking-widest px-5 h-8.5 rounded-sm shadow-md shadow-primary/5 hover:shadow-[#D4AF37]/15 transition-all duration-300 hover:scale-[1.02]">
-                <Link to="/contact">Schedule Consultation</Link>
-              </Button>
+            {/* RIGHT: EXACTLY ONE PRIMARY BUTTON */}
+            <div className="hidden lg:flex items-center flex-shrink-0">
+              <Link
+                to="/contact"
+                className="bg-[#C9A24B] hover:bg-[#DCB862] text-[#070B14] font-sans font-semibold text-xs uppercase tracking-wider px-5 py-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-[#C9A24B]/20 active:scale-[0.98] inline-flex items-center gap-1.5 focus:outline-none"
+              >
+                <span>Book a Consultation</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </div>
 
-            {/* Mobile menu button */}
+            {/* MOBILE: Hamburger Trigger */}
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-foreground hover:text-primary transition-colors"
-              aria-label="Toggle menu"
+              type="button"
+              onClick={() => setIsMobileOpen(true)}
+              className="lg:hidden p-2 text-[#F5F1E8] hover:text-[#C9A24B] focus:outline-none transition-colors"
+              aria-label="Open Navigation Menu"
             >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <Menu className="w-6 h-6" />
             </button>
+
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-[#030B22]/95 border-t border-[#D4AF37]/20 overflow-hidden backdrop-blur-xl rounded-b-2xl"
-            >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
-                {navLinks.map((link, index) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    {link.external ? (
-                      <a
-                        href={link.href}
-                        className="block py-2.5 px-4 rounded text-xs font-semibold uppercase tracking-wider transition-colors text-foreground hover:bg-[#030B22]/50 hover:text-primary inline-flex items-center gap-1.5"
-                      >
-                        {link.label}
-                        <ExternalLink className="h-2.5 w-2.5 opacity-50" />
-                      </a>
-                    ) : (
-                      <Link
-                        to={link.href}
-                        className={`block py-2.5 px-4 rounded text-xs font-semibold uppercase tracking-wider transition-colors ${
-                          location.pathname === link.href
-                            ? "bg-[#D4AF37]/10 text-primary"
-                            : "text-foreground hover:bg-[#030B22]/50 hover:text-primary"
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    )}
-                  </motion.div>
-                ))}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navLinks.length * 0.05 }}
-                  className="pt-3"
-                >
-                  <Button asChild className="w-full gold-gradient text-primary-foreground font-semibold text-xs uppercase tracking-wider rounded-sm">
-                    <Link to="/contact">Schedule Consultation</Link>
-                  </Button>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (navLinks.length + 1) * 0.05 }}
-                  className="pt-4 mt-2 border-t border-border/10 flex flex-wrap justify-center gap-3"
-                >
-                  <a
-                    href="https://www.facebook.com/shalini.malhotra.50767984/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-lg bg-slate-900/40 border border-border/30 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
-                    aria-label="Facebook"
-                  >
-                    <Facebook className="h-4.5 w-4.5" />
-                  </a>
-                  <a
-                    href="https://www.instagram.com/alphainvestmentmanagement?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-lg bg-slate-900/40 border border-border/30 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
-                    aria-label="Instagram"
-                  >
-                    <Instagram className="h-4.5 w-4.5" />
-                  </a>
-                  <a
-                    href="https://x.com/alphaaim_in"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-lg bg-slate-900/40 border border-border/30 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
-                    aria-label="Twitter/X"
-                  >
-                    <Twitter className="h-4.5 w-4.5" />
-                  </a>
-                  <a
-                    href="https://medium.com/@mcp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-lg bg-slate-900/40 border border-border/30 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm flex items-center justify-center"
-                    aria-label="Medium"
-                  >
-                    <MediumIcon className="h-4.5 w-4.5" />
-                  </a>
-                </motion.div>
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.header>
+
+      {/* MOBILE FULL-SCREEN MENU OVERLAY */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 bg-[#070B14] text-[#F5F1E8] flex flex-col justify-between pt-6 pb-8 px-6 sm:px-8 lg:hidden overflow-y-auto"
+          >
+            {/* Top Bar with Brand & Close Button */}
+            <div className="flex items-center justify-between pb-6 border-b border-white/[0.08]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C9A24B]/40">
+                  <img
+                    src="/logo-circular1.png"
+                    alt="Alpha Investment Management"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-serif text-sm tracking-tight font-medium text-[#F5F1E8]">
+                    Alpha Investment
+                  </span>
+                  <span className="text-[8px] font-sans uppercase tracking-widest text-slate-400">
+                    SEBI RIA · INA000017348
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen(false)}
+                className="p-2 text-[#F5F1E8] hover:text-[#C9A24B] focus:outline-none transition-colors"
+                aria-label="Close Navigation Menu"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Center: Stacked Serif Links with Inline Accordions for Tools and Resources */}
+            <div className="py-6 space-y-4">
+              <span className="text-[10px] uppercase tracking-widest text-[#C9A24B] font-mono block">
+                Fiduciary Navigation
+              </span>
+
+              <div className="space-y-4">
+                {/* Home */}
+                <Link
+                  to="/"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="block font-serif text-2xl text-[#F5F1E8] hover:text-[#C9A24B] transition-colors"
+                >
+                  Home
+                </Link>
+
+                {/* About */}
+                <Link
+                  to="/about"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="block font-serif text-2xl text-[#F5F1E8] hover:text-[#C9A24B] transition-colors"
+                >
+                  About
+                </Link>
+
+                {/* Services */}
+                <Link
+                  to="/services"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="block font-serif text-2xl text-[#F5F1E8] hover:text-[#C9A24B] transition-colors"
+                >
+                  Services
+                </Link>
+
+                {/* Tools Accordion */}
+                <div className="border-y border-white/[0.06] py-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setMobileToolsOpen(!mobileToolsOpen)}
+                    className="w-full flex items-center justify-between font-serif text-2xl text-[#F5F1E8] hover:text-[#C9A24B] transition-colors text-left"
+                  >
+                    <span>Tools</span>
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
+                        mobileToolsOpen ? "rotate-180 text-[#C9A24B]" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {mobileToolsOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden pl-3 pt-2 space-y-3"
+                      >
+                        {toolsItems.map((item) => (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            onClick={() => setIsMobileOpen(false)}
+                            className="block space-y-0.5 group"
+                          >
+                            <p className="text-sm font-sans font-medium text-[#F5F1E8] group-hover:text-[#C9A24B] transition-colors">
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-slate-400 font-sans font-light">
+                              {item.description}
+                            </p>
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Resources Accordion */}
+                <div className="border-b border-white/[0.06] pb-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
+                    className="w-full flex items-center justify-between font-serif text-2xl text-[#F5F1E8] hover:text-[#C9A24B] transition-colors text-left"
+                  >
+                    <span>Resources</span>
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${
+                        mobileResourcesOpen ? "rotate-180 text-[#C9A24B]" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {mobileResourcesOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden pl-3 pt-2 space-y-3"
+                      >
+                        {resourcesItems.map((item) => (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            onClick={() => setIsMobileOpen(false)}
+                            className="block space-y-0.5 group"
+                          >
+                            <p className="text-sm font-sans font-medium text-[#F5F1E8] group-hover:text-[#C9A24B] transition-colors">
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-slate-400 font-sans font-light">
+                              {item.description}
+                            </p>
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Contact */}
+                <Link
+                  to="/contact"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="block font-serif text-2xl text-[#F5F1E8] hover:text-[#C9A24B] transition-colors"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+
+            {/* Bottom Pinned CTA: Book a Consultation */}
+            <div className="pt-4 border-t border-white/[0.08]">
+              <Link
+                to="/contact"
+                onClick={() => setIsMobileOpen(false)}
+                className="w-full py-4 rounded-full bg-[#C9A24B] hover:bg-[#DCB862] text-[#070B14] font-semibold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2"
+              >
+                <span>Book a Consultation</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -1,15 +1,25 @@
 import { lazy, Suspense, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LanguageProvider } from "@/context/LanguageContext";
+import { CookieConsent } from "@/components/CookieConsent";
+import { FloatingChat } from "@/components/FloatingChat";
+import { SEO } from "@/components/SEO";
+import { initializeUtmTracking } from "@/utils/utmTracker";
 
 // Route-level code splitting — each page loads as its own JS chunk
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
 const Services = lazy(() => import("./pages/Services"));
+const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
+const Calculators = lazy(() => import("./pages/Calculators"));
+const RiskProfile = lazy(() => import("./pages/RiskProfile"));
+const Insights = lazy(() => import("./pages/Insights"));
+const InsightDetail = lazy(() => import("./pages/InsightDetail"));
+const Downloads = lazy(() => import("./pages/Downloads"));
 const Empanelment = lazy(() => import("./pages/Empanelment"));
 const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -19,18 +29,22 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Minimal background-colored fallback to prevent flash
 const PageFallback = () => (
-  <div style={{ minHeight: "100vh", background: "#030B22" }} aria-hidden="true" />
+  <div style={{ minHeight: "100vh", background: "#070B14" }} aria-hidden="true" />
 );
 
 const queryClient = new QueryClient();
 
-// Scroll to top component
-function ScrollToTop() {
+// Scroll to top and initialize UTM tracking
+function AppLifecycle() {
   const { pathname } = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  useEffect(() => {
+    initializeUtmTracking();
+  }, []);
 
   return null;
 }
@@ -38,11 +52,17 @@ function ScrollToTop() {
 function AppRoutes() {
   return (
     <Suspense fallback={<PageFallback />}>
-      <ScrollToTop />
+      <AppLifecycle />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/services/:slug" element={<ServiceDetail />} />
+        <Route path="/calculators" element={<Calculators />} />
+        <Route path="/risk-profile" element={<RiskProfile />} />
+        <Route path="/insights" element={<Insights />} />
+        <Route path="/insights/:slug" element={<InsightDetail />} />
+        <Route path="/downloads" element={<Downloads />} />
         <Route path="/empanelment" element={<Empanelment />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -57,13 +77,18 @@ function AppRoutes() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <SEO />
+            <Toaster />
+            <Sonner />
+            <AppRoutes />
+            <FloatingChat />
+            <CookieConsent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

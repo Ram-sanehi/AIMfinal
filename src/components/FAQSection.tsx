@@ -1,117 +1,212 @@
-import { motion } from "framer-motion";
-import { HelpCircle } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
-const faqs = [
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+const faqs: FAQItem[] = [
   {
-    question: "What is a SEBI Registered Investment Advisor?",
+    question: "What is a SEBI Registered Investment Adviser?",
     answer:
-      "A SEBI Registered Investment Advisor (RIA) is a financial professional licensed by the Securities and Exchange Board of India under the SEBI (Investment Advisers) Regulations, 2013. Unlike mutual fund distributors who earn commissions, RIAs are fee-only fiduciaries — legally required to act in your best interest. Alpha Investment Management holds SEBI Registration No. INA000017348.",
+      "A SEBI Registered Investment Adviser (RIA) is licensed by the Securities and Exchange Board of India under the SEBI (Investment Advisers) Regulations, 2013. RIAs are required to act in the client's interest and to disclose fees and conflicts of interest. Alpha Investment Management holds SEBI Registration No. INA000017348.",
   },
   {
     question: "How do you charge for your advisory services?",
     answer:
-      "We operate on a transparent, fee-only model. Our advisory fees are charged directly to you — either as a fixed annual retainer or as a percentage of assets under advisory (AUA). We do not earn commissions, trail fees, or referral incentives from any product provider. This eliminates conflicts of interest entirely.",
+      "We operate on a transparent, fee-only model. Our advisory fees are charged directly to you — either as a fixed annual retainer or as an agreed percentage of assets under advisory (AUA). We do not accept distributor commissions, trail fees, or referral incentives from product manufacturers, ensuring our recommendations are aligned with your family's objectives.",
   },
   {
-    question: "What is the minimum investment required to get started?",
+    question: "What is the minimum portfolio size required to get started?",
     answer:
-      "There is no fixed minimum investment for our advisory services. We work with clients at various wealth stages — from first-time investors to high-net-worth families. What matters more is your commitment to a long-term financial plan. We will structure a solution appropriate to your current financial position.",
+      "Our bespoke investment management services are typically tailored for portfolios starting at ₹25 Lakhs, allowing adequate multi-sector diversification and direct securities exposure. However, for comprehensive financial planning and estate advisory, we work with families at varying capital stages.",
   },
   {
-    question: "How do you manage risk in volatile markets?",
+    question: "Do you hold custody of client funds or securities?",
     answer:
-      "Risk management is embedded at every layer of our advisory process. We begin with a detailed risk profiling assessment, then construct portfolios with appropriate asset allocation across equity, debt, and liquid instruments. We avoid concentrated positions, use systematic rebalancing, and avoid market-timing speculation. Our goal is consistent, risk-adjusted growth — not maximum short-term returns.",
+      "No. We do not hold client assets or securities. Your investments remain securely in your own Demat and bank accounts with Tier-1 depositories (NSDL/CDSL). We operate purely on advisory mandates.",
   },
   {
-    question: "Do you assist with tax planning and tax optimization?",
+    question: "How do you manage downside risk during volatile markets?",
     answer:
-      "Yes. Tax efficiency is a core component of our portfolio construction and advisory. We optimize asset location, manage capital gains tax liability through systematic tax-loss harvesting, and plan distributions to minimize your overall tax burden. We also guide HNI clients on tax-efficient succession and estate planning.",
+      "Our risk management framework aims to balance capital preservation with long-term compounding. We begin with a quantitative risk profile, then construct portfolios with non-correlated asset weights across equities, sovereign debt, and gold. We avoid leveraged speculation and use disciplined periodic rebalancing to manage volatility.",
   },
   {
-    question: "How is my portfolio monitored after the initial investment?",
+    question: "How does tax-efficient planning improve returns?",
     answer:
-      "We conduct quarterly portfolio reviews covering performance attribution, risk metrics, goal alignment, and market developments. You receive a written portfolio report each quarter. Additionally, we proactively reach out during significant market events or whenever rebalancing is required. You always have direct access to your advisor.",
+      "Taxes represent a significant drag on net investment returns. We optimize asset location across taxable and tax-advantaged accounts, systematically execute tax-loss harvesting before fiscal year-end where suitable to offset capital gains, and align deductions under applicable sections of the Income Tax Act.",
   },
   {
-    question: "Are you a fiduciary? What does that mean for me?",
+    question: "How frequently will our family portfolio be reviewed?",
     answer:
-      "Yes — as a SEBI Registered Investment Advisor, we are legally bound to a fiduciary standard. This means every recommendation we make must be in your best interest, not in the interest of any product manufacturer or distributor. We cannot accept any commission, kickback, or incentive from third parties. Your interest comes first — always.",
+      "You receive monthly snapshot updates, formal quarterly performance reviews with attribution analysis, and an annual financial review. In addition, our advisory desk reaches out proactively during significant macroeconomic developments.",
   },
   {
-    question: "How often will I receive portfolio updates and reports?",
+    question: "How does an RIA differ from a bank relationship manager?",
     answer:
-      "You receive a comprehensive portfolio report quarterly, including performance analysis, allocation review, and goal progress tracking. For active clients, we also provide monthly summary updates and real-time alerts for significant portfolio events. Annual reviews include a full financial health assessment and strategy recalibration.",
-  },
-  {
-    question: "Is my personal and financial data kept secure?",
-    answer:
-      "Absolutely. We adhere to strict data confidentiality protocols. Your personal and financial information is never shared with third parties without your explicit consent. We use secure, encrypted communication channels and comply with all applicable data protection regulations. Your privacy is a fundamental part of our fiduciary commitment.",
+      "Bank relationship managers are typically employed to distribute in-house proprietary products and financial instruments. As an independent SEBI Registered Investment Adviser, we do not sell proprietary products or receive distributor sales incentives, ensuring our advice remains focused on your objectives.",
   },
 ];
 
 export function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  // Synchronized FAQPage JSON-LD Structured Data
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
-    <section className="py-24 bg-card/20 border-t border-border/15" aria-labelledby="faq-heading">
-      <div className="container mx-auto px-4 max-w-5xl">
-        <div className="grid lg:grid-cols-12 gap-14 items-start">
+    <section
+      id="faqs"
+      className="py-24 lg:py-32 bg-[#050811] text-[#F5F1E8] relative overflow-hidden border-t border-white/[0.08]"
+      aria-labelledby="faq-section-heading"
+    >
+      {/* Injected FAQPage JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
 
-          {/* Left header — sticky on desktop */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-4 lg:sticky lg:top-28 space-y-5 text-left"
-          >
-            <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[9px] font-bold tracking-widest uppercase text-primary mb-3">
-                <HelpCircle className="h-3 w-3 text-primary" /> Common Questions
-              </span>
-              <h2 id="faq-heading" className="text-3xl font-display font-bold leading-tight">
-                Frequently <span className="gold-text">Asked Questions</span>
-              </h2>
-            </div>
-            <p className="text-muted-foreground text-sm leading-relaxed font-light">
-              Answers to the questions we hear most often from prospective and existing clients.
-              If you have a question not covered here, please{" "}
-              <a href="/contact" className="text-primary hover:text-primary/80 transition-colors underline underline-offset-2 font-medium">
-                reach out directly
-              </a>.
+      <div className="container mx-auto px-6 sm:px-10 lg:px-16 max-w-7xl relative z-10">
+        
+        {/* EDITORIAL ACCORDION GRID: 360px left column + 64px min gap + flexible right column */}
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-12 lg:gap-16 items-start">
+          
+          {/* LEFT COLUMN: Fixed max-width 360px with 48px padding-right, sticky top 110px */}
+          <div className="w-full lg:w-[360px] lg:max-w-[360px] lg:pr-12 lg:sticky lg:top-[110px] self-start space-y-6 shrink-0">
+            
+            {/* Eyebrow: Plain gold small-caps Inter style */}
+            <span className="font-sans text-xs sm:text-[13px] font-semibold uppercase tracking-[0.25em] text-[#C9A24B] block">
+              FAQS
+            </span>
+
+            {/* Heading: clamp(1.75rem, 2.6vw, 2.5rem), line-height 1.15, text-wrap: balance, overflow-wrap: break-word */}
+            <h2
+              id="faq-section-heading"
+              className="font-serif text-[clamp(1.75rem,2.6vw,2.5rem)] font-normal leading-[1.15] tracking-tight [text-wrap:balance] [overflow-wrap:break-word] break-words text-[#F5F1E8]"
+              style={{ textWrap: "balance", overflowWrap: "break-word" }}
+            >
+              <span>Questions, answered</span>{" "}
+              <span className="italic text-[#C9A24B] block">plainly.</span>
+            </h2>
+
+            {/* Intro paragraph: Inter 16px/1.7, text-muted-text, max-width 40ch */}
+            <p className="font-sans text-[16px] leading-[1.7] text-muted-text font-light max-w-[40ch]">
+              Straight answers on our licence, fees, risk approach and data security.
             </p>
-          </motion.div>
 
-          {/* Right accordion */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-8"
-          >
-            <Accordion type="single" collapsible className="space-y-0 divide-y divide-border/25">
-              {faqs.map((faq, index) => (
-                <AccordionItem
-                  key={index}
-                  value={`item-${index}`}
-                  className="border-0 first:border-t border-border/25 py-1"
-                >
-                  <AccordionTrigger className="text-left text-sm font-semibold text-foreground hover:text-primary transition-colors duration-200 hover:no-underline py-4 gap-4">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground/85 leading-relaxed font-light pb-5 pr-8 text-left">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </motion.div>
+            {/* Text link to consultation: #C9A24B at full opacity, underline on hover */}
+            <div className="pt-2">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 text-sm font-sans font-medium text-[#C9A24B] hover:underline transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A24B] rounded-sm"
+              >
+                <span>Still have a question? Book a consultation</span>
+                <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+                  →
+                </span>
+              </Link>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Single column of 8 questions, separated by 1px hairlines, padding 28px 0 */}
+          <div className="w-full min-w-0">
+            <div className="border-y border-white/[0.12] divide-y divide-white/[0.12]">
+              {faqs.map((faq, index) => {
+                const isOpen = openIndex === index;
+
+                return (
+                  <div
+                    key={index}
+                    className={`py-6 sm:py-7 px-4 sm:px-6 -mx-4 sm:-mx-6 rounded-xl transition-all duration-300 ${
+                      isOpen ? "bg-white/[0.03]" : "hover:bg-white/[0.015]"
+                    }`}
+                  >
+                    
+                    {/* Question Button: Serif 24px ivory (20px on mobile), rotates gold plus to minus */}
+                    <button
+                      type="button"
+                      onClick={() => setOpenIndex(isOpen ? null : index)}
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-answer-${index}`}
+                      className="w-full flex items-center justify-between text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A24B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050811] rounded-sm py-1"
+                    >
+                      <span
+                        className={`font-serif text-[20px] sm:text-[24px] font-normal leading-[1.3] transition-colors duration-200 tracking-tight pr-6 ${
+                          isOpen ? "text-[#C9A24B]" : "text-[#F5F1E8] group-hover:text-[#C9A24B]"
+                        }`}
+                      >
+                        {faq.question}
+                      </span>
+
+                      {/* Plain 16px Gold Plus/Minus Icon with crisp gold minus state */}
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0">
+                        <svg
+                          className="w-4 h-4 text-[#C9A24B] shrink-0"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          aria-hidden="true"
+                        >
+                          <line x1="3" y1="8" x2="13" y2="8" />
+                          <line
+                            x1="8"
+                            y1="3"
+                            x2="8"
+                            y2="13"
+                            className="origin-center transition-all duration-300 ease-out"
+                            style={{
+                              transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+                              opacity: isOpen ? 0 : 1,
+                            }}
+                          />
+                        </svg>
+                      </div>
+                    </button>
+
+                    {/* Answer Container: Height animates 350ms ease-out via grid-template-rows (0fr to 1fr) */}
+                    <div
+                      id={`faq-answer-${index}`}
+                      className={`grid transition-[grid-template-rows] duration-350 ease-out ${
+                        isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="pt-4 font-sans text-[16px] sm:text-[16.5px] leading-[1.75] text-muted-text font-light max-w-[62ch]">
+                          {faq.answer}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footnote: Aligned with the left edge of the questions (x = list container left) */}
+            <div className="pt-8">
+              <p className="font-sans text-[13px] text-muted-text font-light leading-relaxed">
+                Investments are subject to market risks.
+              </p>
+            </div>
+          </div>
 
         </div>
+
       </div>
     </section>
   );

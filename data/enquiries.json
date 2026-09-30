@@ -1,0 +1,67 @@
+[
+  {
+    "refNumber": "AIM-20260930-3379",
+    "submittedAt": "2026-09-30T09:01:20.306Z",
+    "name": "Vikramaditya Singhania",
+    "email": "vikram@singhania-family.com",
+    "phone": "+91 9823012345",
+    "goal": "Direct Equity & Liquid Debt Advisory (₹25L+)",
+    "message": "Requesting consultation regarding HNW asset allocation and estate succession.",
+    "consent": true,
+    "clientIp": "test-ip-1",
+    "status": "pending_advisory_review",
+    "emailDispatched": false
+  },
+  {
+    "refNumber": "AIM-20260930-7494",
+    "submittedAt": "2026-09-30T15:51:30.619Z",
+    "name": "Vikramaditya Singhania",
+    "email": "vikram@singhania-family.com",
+    "phone": "+91 9823012345",
+    "goal": "Direct Equity & Liquid Debt Advisory (₹25L+)",
+    "message": "Requesting consultation regarding HNW asset allocation and estate succession.",
+    "consent": true,
+    "clientIp": "test-ip-1",
+    "status": "pending_advisory_review",
+    "emailDispatched": false
+  },
+  {
+    "refNumber": "AIM-20260930-7204",
+    "submittedAt": "2026-09-30T15:53:59.466Z",
+    "name": "Vikramaditya Singhania",
+    "email": "vikram@singhania-family.com",
+    "phone": "+91 9823012345",
+    "goal": "Direct Equity & Liquid Debt Advisory (₹25L+)",
+    "message": "Requesting consultation regarding HNW asset allocation and estate succession.",
+    "consent": true,
+    "clientIp": "test-ip-1",
+    "status": "pending_advisory_review",
+    "emailDispatched": false
+  },
+  {
+    "refNumber": "AIM-20260930-2085",
+    "submittedAt": "2026-09-30T15:56:46.750Z",
+    "name": "Vikramaditya Singhania",
+    "email": "vikram@singhania-family.com",
+    "phone": "+91 9823012345",
+    "goal": "Direct Equity & Liquid Debt Advisory (₹25L+)",
+    "message": "Requesting consultation regarding HNW asset allocation and estate succession.",
+    "consent": true,
+    "clientIp": "test-ip-1",
+    "status": "pending_advisory_review",
+    "emailDispatched": false
+  },
+  {
+    "refNumber": "AIM-20260930-9448",
+    "submittedAt": "2026-09-30T16:00:43.087Z",
+    "name": "Vikramaditya Singhania",
+    "email": "vikram@singhania-family.com",
+    "phone": "+91 9823012345",
+    "goal": "Direct Equity & Liquid Debt Advisory (₹25L+)",
+    "message": "Requesting consultation regarding HNW asset allocation and estate succession.",
+    "consent": true,
+    "clientIp": "test-ip-1",
+    "status": "pending_advisory_review",
+    "emailDispatched": false
+  }
+]

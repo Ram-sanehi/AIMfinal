@@ -1,287 +1,403 @@
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useState } from "react";
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock, 
-  Facebook, 
-  Twitter, 
-  Linkedin, 
-  Instagram
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-const quickLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About Us" },
-  { href: "/services", label: "Services" },
-  { href: "/empanelment", label: "Empanelment" },
-  { href: "/contact", label: "Contact" },
-];
-
-const services = [
-  { label: "Investment Management", href: "/services", external: false },
-  { label: "Financial Planning", href: "/services", external: false },
-  { label: "Loan Services", href: "/services", external: false },
-  { label: "Insurance Mall ↗", href: "https://insurancemall.alphaaim.in", external: true },
-  { label: "Tax Planning", href: "/services", external: false },
-  { label: "Retirement Planning", href: "/services", external: false },
-];
-
-const MediumIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M13.54 12c0 3.77-3.03 6.82-6.77 6.82S0 15.77 0 12s3.03-6.82 6.77-6.82 6.77 3.05 6.77 6.82zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42zm3.04 0c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75c.66 0 1.19 2.58 1.19 5.75z" />
-  </svg>
-);
+// Feature flag: Hide Insurance Mall until subdomain is live
+const SHOW_INSURANCE_MALL =
+  typeof import.meta !== "undefined" && import.meta.env
+    ? import.meta.env.VITE_ENABLE_INSURANCE_MALL === "true"
+    : false;
 
 export function Footer() {
   const [email, setEmail] = useState("");
-  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+  const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email || !email.includes("@")) {
       toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
+        title: "Please enter a valid email",
+        description: "We require a valid address to deliver advisory notes.",
         variant: "destructive",
       });
       return;
     }
 
-    setIsSubscribing(true);
-    
-    // Simulate subscription delay
+    setIsSubmitting(true);
     setTimeout(() => {
-      setIsSubscribing(false);
+      setIsSubmitting(false);
       setEmail("");
       toast({
-        title: "Thank you for subscribing!",
-        description: "You'll receive the latest financial insights in your inbox.",
+        title: "Subscribed to Investment Notes",
+        description: "You will receive our periodic investment committee notes.",
       });
-    }, 800);
+    }, 600);
   };
 
   return (
-    <footer className="bg-[#020617] border-t border-border/15 pt-20">
-      {/* Main footer content */}
-      <div className="container mx-auto px-4 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+    <footer className="bg-[#070B14] text-[#F5F1E8] relative select-none w-full overflow-hidden">
+      {/* Shared Container Token: max-width 1280px, margin-inline:auto, padding-inline: clamp(24px, 4vw, 48px) */}
+      <div className="w-full max-w-[1280px] mx-auto px-[clamp(24px,4vw,48px)]">
+        
+        {/* ROW 1: Statement + Newsletter (Reduced top padding ~40-48px, headline 40px Cormorant 2-line break, vertically aligned, ~40px gap below before divider) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pt-10 sm:pt-12 pb-10 items-center">
           
-          {/* Company info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="space-y-6"
-          >
-            <Link to="/" className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center shadow-lg border border-primary/30">
-                <img src="/logo-circular1.png" alt="Alpha Investment Management" width="44" height="44" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-              </div>
-              <div>
-                <h3 className="text-[11px] font-display font-extrabold gold-text leading-tight uppercase tracking-[0.2em]">
-                  Alpha Investment
-                </h3>
-              </div>
-            </Link>
-            
-            <p className="text-muted-foreground/80 text-sm leading-relaxed font-light max-w-sm">
-              Your fiduciary partner for bespoke wealth management and strategic capital preservation. Guiding families and individuals towards secure financial legacies since 2019.
-            </p>
-            
-            <div className="flex gap-2.5 pt-2">
-              {[
-                { icon: Linkedin, href: "#", name: "LinkedIn" },
-                { icon: Twitter, href: "https://x.com/alphaaim_in", name: "Twitter/X" },
-                { icon: Facebook, href: "https://www.facebook.com/shalini.malhotra.50767984/", name: "Facebook" },
-                { icon: Instagram, href: "https://www.instagram.com/alphainvestmentmanagement?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", name: "Instagram" },
-                { icon: MediumIcon, href: "https://medium.com/@mcp", name: "Medium" }
-              ].map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  target={social.href !== "#" ? "_blank" : undefined}
-                  rel={social.href !== "#" ? "noopener noreferrer" : undefined}
-                  aria-label={social.name}
-                  className="w-8 h-8 rounded-lg bg-slate-900/40 flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary border border-border/30 hover:border-primary/45 transition-all duration-300 hover:scale-105 active:scale-95"
+          {/* Left: Statement */}
+          <div className="lg:col-span-7">
+            <h2 className="font-serif font-normal text-[32px] sm:text-[40px] leading-[1.15] text-[#F5F1E8] [text-wrap:balance]">
+              Independent advice, <br className="hidden sm:inline" />
+              built for the long term.
+            </h2>
+          </div>
+
+          {/* Right: Newsletter Block with Dedicated Input Field & Gold Button */}
+          <div className="lg:col-span-5 flex flex-col justify-center">
+            <span className="font-sans text-[12px] uppercase tracking-[0.18em] text-[#D0D7E2] font-semibold block mb-2.5">
+              Investment notes
+            </span>
+
+            <form onSubmit={handleSubscribe} className="space-y-2.5">
+              <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email address"
+                  required
+                  disabled={isSubmitting}
+                  className="h-[48px] w-full px-4 rounded-md bg-white/[0.04] border border-white/15 text-[15px] font-sans font-light text-[#F5F1E8] placeholder:text-[#9AA3B2]/60 focus:border-[#C9A24B] focus:ring-1 focus:ring-[#C9A24B] focus:outline-none transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-[48px] px-6 rounded-md bg-[#C9A24B] hover:bg-[#DCB862] text-[#070B14] font-sans font-semibold text-xs uppercase tracking-[0.14em] transition-all duration-200 shadow-md flex items-center justify-center shrink-0 focus-visible:ring-2 focus-visible:ring-[#C9A24B] focus-visible:outline-none cursor-pointer"
                 >
-                  <social.icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="lg:pl-8"
-          >
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80 mb-6">
-              Quick Links
-            </h4>
-            <ul className="space-y-3">
-              {quickLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-muted-foreground/85 hover:text-primary transition-all duration-300 text-sm font-light inline-flex items-center gap-1 hover:translate-x-1"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* Services */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80 mb-6">
-              Our Services
-            </h4>
-            <ul className="space-y-3">
-              {services.map((service) => (
-                <li key={service.label}>
-                  {service.external ? (
-                    <a
-                      href={service.href}
-                      className="text-muted-foreground/85 hover:text-primary transition-all duration-300 text-sm font-light inline-flex items-center gap-1 hover:translate-x-1"
-                    >
-                      {service.label}
-                    </a>
-                  ) : (
-                    <Link
-                      to={service.href}
-                      className="text-muted-foreground/85 hover:text-primary transition-all duration-300 text-sm font-light inline-flex items-center gap-1 hover:translate-x-1"
-                    >
-                      {service.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary/80 mb-6">
-              Contact Us
-            </h4>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3.5">
-                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-center mt-1">
-                  <MapPin className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <span className="text-muted-foreground/80 text-xs md:text-sm leading-relaxed font-light">
-                  Shop no 2, First Floor,<br />
-                  Mahalungeker Complex, (opposite R K Wine shop),<br />
-                  Mahalunge Ingale Kaman,<br />
-                  Chakan-Talegaon Highway, Chakan,<br />
-                  Pune 410501
-                </span>
-              </li>
-              <li>
-                <a href="tel:+919607509586" className="flex items-center gap-3.5 text-muted-foreground/85 hover:text-primary transition-colors group">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                    <Phone className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <span className="text-xs md:text-sm font-medium">+91 9607509586</span>
-                </a>
-              </li>
-              <li>
-                <a href="mailto:alphainvestmentmnt@gmail.com" className="flex items-center gap-3.5 text-muted-foreground/85 hover:text-primary transition-colors group">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                    <Mail className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <span className="text-xs md:text-sm font-medium truncate">alphainvestmentmnt@gmail.com</span>
-                </a>
-              </li>
-              <li className="flex items-start gap-3.5">
-                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-center mt-0.5">
-                  <Clock className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <span className="text-muted-foreground/80 text-xs md:text-sm leading-normal font-light">
-                  Mon - Fri: 9am - 6pm <br />
-                  Sat: 10am - 2pm
-                </span>
-              </li>
-            </ul>
-          </motion.div>
-        </div>
-
-        {/* Newsletter */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-20 pt-16 border-t border-border/10"
-        >
-          <div className="max-w-xl mx-auto text-center space-y-5">
-            <span className="text-[10px] uppercase tracking-[0.25em] text-primary font-bold">Insights</span>
-            <h4 className="text-xl md:text-2xl font-display font-bold">Subscribe to Our Newsletter</h4>
-            <p className="text-muted-foreground/80 text-sm max-w-md mx-auto font-light leading-relaxed">
-              Receive bespoke wealth advice, regulatory compliance guidance, and periodic market commentary directly to your inbox.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto items-center pt-4" onSubmit={handleNewsletterSubmit}>
-              <Input
-                type="email"
-                placeholder="Enter your professional email"
-                className="w-full bg-[#030712]/50 border-border/30 focus-visible:ring-primary/30 rounded-xl h-12 text-sm placeholder:text-muted-foreground/50 transition-all duration-300"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubscribing}
-              />
-              <Button 
-                type="submit" 
-                className="w-full sm:w-auto gold-gradient text-primary-foreground hover:opacity-95 font-semibold px-8 h-12 rounded-xl shadow-lg shadow-primary/5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]" 
-                disabled={isSubscribing}
-              >
-                {isSubscribing ? "Subscribing..." : "Subscribe"}
-              </Button>
+                  {isSubmitting ? "Subscribing..." : "Subscribe →"}
+                </button>
+              </div>
+              <p className="font-sans text-[13px] text-[#A8B0BD] leading-[1.6]">
+                We send periodic notes. Unsubscribe anytime. See our{" "}
+                <Link
+                  to="/privacy"
+                  className="underline hover:text-[#F5F1E8] transition-colors focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </p>
             </form>
           </div>
-        </motion.div>
 
-        {/* Regulatory Compliance Note */}
-        <div className="mt-16 pt-8 border-t border-border/10 text-center max-w-4xl mx-auto">
-          <p className="text-[10px] text-muted-foreground/50 leading-relaxed uppercase tracking-[0.12em] font-light">
-            Disclaimer: Investment in securities market are subject to market risks. Read all the related documents carefully before investing. Registration granted by SEBI, membership of BASL and certification from NISM in no way guarantee performance of the intermediary or provide any assurance of returns to investors.
-          </p>
         </div>
-      </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-border/10 bg-[#01040f] py-8 pb-14">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/75">
-            <p>© 2026 Alpha Investment Management Services. All rights reserved.</p>
-            <div className="flex gap-6">
-              <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <Link to="/disclaimer" className="hover:text-primary transition-colors">Disclaimer</Link>
+        {/* DIVIDER 1: Single 1px hairline under newsletter row */}
+        <div className="border-t border-white/10" />
+
+        {/* ROW 2: Link Block (5-column grid: brand block 1.4fr, then Firm / Advisory / Resources / Governance 1fr each, 40px gap, link row pitch ~30px, 40px spacing) */}
+        <div className="pt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-8 xl:gap-10 items-start">
+            
+            {/* Brand Block (1.4fr on desktop) */}
+            <div className="space-y-3.5 sm:col-span-2 lg:col-span-3 xl:col-span-1">
+              {/* Exact Header Logo Lockup */}
+              <Link to="/" className="flex items-center gap-3 group focus:outline-none flex-shrink-0">
+                <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#C9A24B]/35 flex-shrink-0 bg-[#070B14] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                  <img
+                    src="/logo-circular1.png"
+                    alt="Alpha Investment Management"
+                    width={36}
+                    height={36}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-serif text-base tracking-tight font-medium text-[#F5F1E8] group-hover:text-[#C9A24B] transition-colors duration-200">
+                    Alpha Investment
+                  </span>
+                  <span className="text-[9px] font-sans uppercase tracking-widest text-[#A8B0BD]">
+                    SEBI RIA · INA000017348
+                  </span>
+                </div>
+              </Link>
+
+              {/* Three registration lines together at 13px / line-height 1.5, color #A8B0BD */}
+              <div className="font-sans text-[13px] text-[#A8B0BD] leading-[1.5] space-y-0.5">
+                <p className="whitespace-nowrap">
+                  SEBI Registered Investment Adviser · INA000017348
+                </p>
+                <p>BASL Membership No. 1982</p>
+                <p>Registration validity: Perpetual</p>
+              </div>
+
+              {/* Address: max-width ~280px, text-wrap: balance, 13px / line-height 1.5, color #A8B0BD */}
+              <div className="pt-1 font-sans text-[13px] text-[#A8B0BD] leading-[1.5] max-w-[280px] [text-wrap:balance]">
+                <p>Shop No 2, 1st Floor, Mahalungekar Complex, Chakan{'\u2011'}Talegaon Highway, Chakan, Pune, Maharashtra 410501</p>
+              </div>
+            </div>
+
+            {/* Column 1: Firm */}
+            <div>
+              <span className="font-sans text-[12px] uppercase tracking-[0.18em] text-[#D0D7E2] font-semibold block mb-3.5">
+                Firm
+              </span>
+              <ul className="flex flex-col gap-[9px]">
+                <li>
+                  <Link
+                    to="/about"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/about#approach"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Our Approach
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/about#team"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Team
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Contact
+                  </Link>
+                </li>
+                {SHOW_INSURANCE_MALL && (
+                  <li>
+                    <a
+                      href="https://insurancemall.alphaaim.in"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] inline-flex items-center gap-1.5 whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                    >
+                      <span>Insurance Mall</span>
+                      <span className="text-[13px] text-[#C9A24B] font-medium leading-none" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {/* Column 2: Advisory */}
+            <div>
+              <span className="font-sans text-[12px] uppercase tracking-[0.18em] text-[#D0D7E2] font-semibold block mb-3.5">
+                Advisory
+              </span>
+              <ul className="flex flex-col gap-[9px]">
+                <li>
+                  <Link
+                    to="/services"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    All Capabilities
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/calculators"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Calculators
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/risk-profile"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Risk Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/insights"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Insights
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Resources */}
+            <div>
+              <span className="font-sans text-[12px] uppercase tracking-[0.18em] text-[#D0D7E2] font-semibold block mb-3.5">
+                Resources
+              </span>
+              <ul className="flex flex-col gap-[9px]">
+                <li>
+                  <a
+                    href="https://reporting.alphaaim.in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] inline-flex items-center gap-1.5 whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    <span>Client Reporting Portal</span>
+                    <span className="text-[13px] text-[#C9A24B] font-medium leading-none" aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    to="/disclaimer"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Investor Charter
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/downloads"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Downloads
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: Governance */}
+            <div>
+              <span className="font-sans text-[12px] uppercase tracking-[0.18em] text-[#D0D7E2] font-semibold block mb-3.5">
+                Governance
+              </span>
+              <ul className="flex flex-col gap-[9px]">
+                <li>
+                  <a
+                    href="https://scores.sebi.gov.in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] inline-flex items-center gap-1.5 whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    <span>SEBI SCORES</span>
+                    <span className="text-[13px] text-[#C9A24B] font-medium leading-none" aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://smartodr.in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] inline-flex items-center gap-1.5 whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    <span>SMART ODR</span>
+                    <span className="text-[13px] text-[#C9A24B] font-medium leading-none" aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    to="/disclaimer#grievance"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Grievance Redressal
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/empanelment"
+                    className="font-sans text-[15px] text-[#A8B0BD] hover:text-[#C9A24B] hover:underline underline-offset-4 transition-colors duration-200 leading-[1.4] whitespace-nowrap focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+                  >
+                    Regulatory Empanelment
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ROW 3: Statutory Disclosure Card (Spacing 40px, NO hairline above, padding 20-24px, body 13px / line-height 1.55 / #A8B0BD, gap ~8px, gold left accent, text-wrap pretty) */}
+        <div className="mt-10">
+          <div className="rounded-[4px] p-5 sm:p-6 bg-white/[0.03] border border-white/[0.08] border-l-2 border-l-[#C9A24B]">
+            <span className="font-sans text-[12px] uppercase tracking-[0.18em] text-[#D0D7E2] font-semibold block mb-2.5">
+              Statutory disclosure
+            </span>
+            <div className="font-sans text-[13px] text-[#A8B0BD] leading-[1.55] space-y-2 max-w-[880px] [text-wrap:pretty]">
+              <p>
+                Principal Officer &amp; CIO: Nageshwar Prasad. Grievance Officer: Advocate Rajat Diwan.
+              </p>
+              <p>
+                <strong className="font-semibold text-white">
+                  Investments in securities market are subject to market risks.
+                </strong>{" "}
+                Read all the related documents carefully before investing.
+              </p>
+              <p>
+                Registration granted by SEBI, membership of BASL and certification from NISM in no way guarantee performance of the intermediary or provide any assurance of returns to investors.
+              </p>
             </div>
           </div>
         </div>
+
+        {/* DIVIDER 2 + ROW 4: Bottom bar (Single 1px hairline above bottom bar, padding ~20-24px, one line at 13px, copyright left, links right) */}
+        <div className="border-t border-white/10 py-5 sm:py-6 mt-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] font-sans text-[#A8B0BD] w-full">
+            {/* Left: Copyright */}
+            <p>© 2026 Alpha Investment Management. All rights reserved.</p>
+
+            {/* Right: Text links right-aligned with consistent spacing */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2">
+              <Link
+                to="/privacy"
+                className="hover:text-[#F5F1E8] transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+              >
+                Privacy Policy
+              </Link>
+              <span className="text-white/45 select-none font-medium" aria-hidden="true">·</span>
+              <Link
+                to="/terms"
+                className="hover:text-[#F5F1E8] transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+              >
+                Terms
+              </Link>
+              <span className="text-white/45 select-none font-medium" aria-hidden="true">·</span>
+              <Link
+                to="/disclaimer"
+                className="hover:text-[#F5F1E8] transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+              >
+                Regulatory Disclosures
+              </Link>
+              <span className="text-white/45 select-none font-medium" aria-hidden="true">·</span>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#F5F1E8] transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+              >
+                LinkedIn
+              </a>
+              <span className="text-white/45 select-none font-medium" aria-hidden="true">·</span>
+              <a
+                href="https://www.instagram.com/alphainvestmentmanagement"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#F5F1E8] transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"
+              >
+                Instagram
+              </a>
+            </div>
+          </div>
+        </div>
+
       </div>
     </footer>
   );

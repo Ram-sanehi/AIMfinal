@@ -5,7 +5,7 @@ import { Shield, Lock, Eye, Mail, Phone, MapPin } from "lucide-react";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-[#070B14] text-[#F5F1E8] selection:bg-[#C9A24B]/30 selection:text-[#F5F1E8] overflow-x-hidden">
       <Navbar />
       <main>
 
@@ -175,16 +175,55 @@ const PrivacyPolicy = () => {
               </p>
             </div>
 
-            {/* 6. Contact Us */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 border border-border/30 bg-gradient-to-b from-slate-900/40 via-slate-950/20 to-slate-950/10 space-y-6 hover:border-primary/20 transition-all duration-300 shadow-sm group relative overflow-hidden">
-              {/* Subtle animated border slide-across line on card bottom */}
+            {/* 6. DPDP Act, 2023 Compliance & Data Principal Rights */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 border border-border/30 bg-[#030712]/30 space-y-4 hover:border-primary/20 transition-all duration-300 shadow-sm group relative overflow-hidden">
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2.5px] bg-primary group-hover:w-full transition-all duration-500 z-10" />
               <div className="flex items-center gap-3">
                 <span className="text-sm font-bold font-display text-primary uppercase tracking-wider">06.</span>
-                <h2 className="text-xl font-bold font-display text-foreground">Contact Us</h2>
+                <h2 className="text-xl font-bold font-display text-foreground">Digital Personal Data Protection (DPDP) Act, 2023 Rights</h2>
               </div>
               <p className="text-sm md:text-base text-muted-foreground/90 leading-relaxed font-light">
-                If you have questions, comments, or compliance inquiries about this Privacy Policy, please contact our administrative officer at:
+                In full alignment with the Digital Personal Data Protection Act, 2023 (DPDP Act, 2023), Alpha Investment Management acts as a Data Fiduciary. Users who submit inquiries via our Contact Form or engage our advisory desk are recognized as Data Principals and possess the following enforceable statutory rights:
+              </p>
+              <ul className="space-y-3 pl-2 pt-2">
+                {[
+                  { title: "Purpose Limitation:", detail: "Information collected through the website inquiry form (full name, email, phone, advisory objective, and context) is utilized exclusively to respond to your advisory consultation request and evaluate suitability." },
+                  { title: "Right to Information & Access:", detail: "You may request a summary of the personal data collected, processing activities undertaken, and identity of any third-party processors." },
+                  { title: "Right to Correction & Erasure:", detail: "You have the right to request correction of inaccurate or misleading data, and completion of incomplete data. Erasure requests are subject to mandatory statutory retention obligations." },
+                  { title: "Right to Grievance Redressal:", detail: "You may register grievances regarding data processing directly with our designated Data Protection & Grievance Officer, who will respond within 15 calendar days." },
+                  { title: "Right to Nominate:", detail: "In the event of death or incapacity, you have the right to nominate another individual to exercise your rights under the DPDP Act." }
+                ].map((item) => (
+                  <li key={item.title} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="text-sm text-muted-foreground/90 font-light leading-relaxed">
+                      <strong className="text-foreground font-semibold">{item.title}</strong> {item.detail}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 7. Data Retention & SEBI Statutory Recordkeeping */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 border border-border/30 bg-[#030712]/30 space-y-4 hover:border-primary/20 transition-all duration-300 shadow-sm group relative overflow-hidden">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2.5px] bg-primary group-hover:w-full transition-all duration-500 z-10" />
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-bold font-display text-primary uppercase tracking-wider">07.</span>
+                <h2 className="text-xl font-bold font-display text-foreground">Data Retention & Statutory Audits</h2>
+              </div>
+              <p className="text-sm md:text-base text-muted-foreground/90 leading-relaxed font-light">
+                Pursuant to Regulation 22 of the SEBI (Investment Advisers) Regulations, 2013 and anti-money laundering regulations (PMLA), all client inquiry records, risk profiling assessments, investment advice notes, and communications must be maintained in verifiable physical or electronic format for a <strong>minimum period of 5 years</strong>. Inactive prospect inquiries that do not culminate in an advisory engagement are securely purged after 12 months, unless retained for audit compliance.
+              </p>
+            </div>
+
+            {/* 8. Designated Data Protection & Grievance Officer */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 border border-border/30 bg-gradient-to-b from-slate-900/40 via-slate-950/20 to-slate-950/10 space-y-6 hover:border-primary/20 transition-all duration-300 shadow-sm group relative overflow-hidden">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2.5px] bg-primary group-hover:w-full transition-all duration-500 z-10" />
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-bold font-display text-primary uppercase tracking-wider">08.</span>
+                <h2 className="text-xl font-bold font-display text-foreground">Designated Grievance & Compliance Officer</h2>
+              </div>
+              <p className="text-sm md:text-base text-muted-foreground/90 leading-relaxed font-light">
+                For grievances related to data privacy under the DPDP Act, 2023 or SEBI RIA compliance, please contact our designated officer:
               </p>
               
               <div className="grid md:grid-cols-3 gap-6 pt-2">
@@ -193,8 +232,9 @@ const PrivacyPolicy = () => {
                     <Mail className="h-4.5 w-4.5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-0.5">Email Inquiry</h4>
-                    <a href="mailto:alphainvestmentmnt@gmail.com" className="text-xs md:text-sm text-foreground hover:text-primary transition-colors font-medium">
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-0.5">Designated Officer</h4>
+                    <p className="text-xs md:text-sm text-foreground font-medium">Advocate Rajat Diwan</p>
+                    <a href="mailto:alphainvestmentmnt@gmail.com" className="text-xs text-primary hover:underline">
                       alphainvestmentmnt@gmail.com
                     </a>
                   </div>
@@ -205,9 +245,9 @@ const PrivacyPolicy = () => {
                     <Phone className="h-4.5 w-4.5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-0.5">Direct Line</h4>
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-0.5">Advisory Helpline</h4>
                     <a href="tel:+919607509586" className="text-xs md:text-sm text-foreground hover:text-primary transition-colors font-medium">
-                      +91 9607509586
+                      +91 96075 09586
                     </a>
                   </div>
                 </div>
@@ -217,9 +257,9 @@ const PrivacyPolicy = () => {
                     <MapPin className="h-4.5 w-4.5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-0.5">Office Address</h4>
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-0.5">Registered Office</h4>
                     <p className="text-xs md:text-sm text-muted-foreground/90 leading-tight font-light">
-                      1st Floor, Mahalunge Complex, Chakan-Talegaon Highway, Pune 410501
+                      Shop no 2, 1st Floor, Mahalungeker Complex, Chakan-Talegaon Highway, Pune 410501
                     </p>
                   </div>
                 </div>
@@ -228,8 +268,8 @@ const PrivacyPolicy = () => {
 
             {/* Last Updated */}
             <div className="mt-12 pt-8 border-t border-border/10 flex justify-between items-center text-xs text-muted-foreground/50 uppercase tracking-widest">
-              <span>Alpha Investment Management</span>
-              <span>Last Updated: January 28, 2026</span>
+              <span>Alpha Investment Management · SEBI RIA INA000017348</span>
+              <span>Updated: September 2026</span>
             </div>
           </motion.div>
         </div>

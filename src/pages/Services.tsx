@@ -1,384 +1,272 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, Check, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { StockTicker } from "@/components/StockTicker";
 import { Footer } from "@/components/Footer";
 import { CTA } from "@/components/CTA";
-import { 
-  TrendingUp, 
-  PiggyBank, 
-  Shield, 
-  Building2, 
-  Calculator, 
-  Briefcase,
-  ChevronDown,
-  Check
-} from "lucide-react";
+import { servicesData } from "@/data/servicesData";
+import { cn } from "@/lib/utils";
 
-const services = [
-  {
-    icon: TrendingUp,
-    title: "Investment Management",
-    description: "Personalized investment strategies designed to balance long-term growth with disciplined risk management.",
-    keyBenefits: [
-      "Customized portfolio aligned with your goals",
-      "Regular rebalancing to optimize returns",
-      "Access to diverse investment options",
-      "Professional risk management",
-      "Tax-efficient investment strategies",
-    ],
-    process: [
-      "Risk Assessment - Understanding your risk tolerance and investment horizon",
-      "Goal Setting - Defining clear financial objectives",
-      "Strategy Design - Creating a personalized investment plan",
-      "Implementation - Executing the investment strategy",
-      "Monitoring - Continuous portfolio tracking and adjustments",
-    ],
-    instruments: [
-      "Equity Instruments",
-      "Debt Instruments",
-      "Derivatives",
-      "Mutual Funds",
-      "Foreign Exchange",
-      "Money Market",
-      "Government Schemes",
-      "Real Estate & Commodities",
-      "Cash Equivalents",
-    ],
-  },
-  {
-    icon: PiggyBank,
-    title: "Financial Planning",
-    description: "A structured roadmap crafted to coordinate your assets, liabilities, and aspirations into a unified path toward long-term security.",
-    keyBenefits: [
-      "Clear roadmap to financial success",
-      "Budget optimization strategies",
-      "Emergency fund planning",
-      "Education funding solutions",
-      "Marriage and major life event planning",
-    ],
-    process: [
-      "Financial Assessment - Analyzing your current financial position",
-      "Goal Identification - Understanding your aspirations",
-      "Plan Development - Creating actionable financial strategies",
-      "Implementation Support - Helping you execute the plan",
-      "Regular Reviews - Adjusting the plan as life changes",
-    ],
-    offerings: [
-      "Personal Financial Planning",
-      "Family Wealth Planning",
-      "Education Planning",
-      "Marriage Planning",
-      "Business Planning",
-      "Succession Planning",
-    ],
-  },
-  {
-    icon: Building2,
-    title: "Loan Services",
-    description: "Institutional access to custom capital, structured at competitive rates to facilitate property acquisition or business expansion.",
-    keyBenefits: [
-      "Competitive interest rates",
-      "Quick approval process",
-      "Flexible repayment options",
-      "Minimal documentation",
-      "Expert guidance throughout",
-    ],
-    process: [
-      "Requirement Analysis - Understanding your loan needs",
-      "Product Comparison - Finding the best loan options",
-      "Documentation - Preparing required documents",
-      "Application - Submitting to selected lenders",
-      "Disbursement - Ensuring smooth fund transfer",
-    ],
-    offerings: [
-      "Personal Loan",
-      "Home Loan",
-      "New & Used Vehicle Loans",
-      "Loan Against Property",
-      "Loan for Plot/Land",
-      "Loan for Renovation",
-    ],
-  },
-  {
-    icon: Shield,
-    title: "Insurance & Risk Management",
-    description: "A proactive shield for your wealth and loved ones, ensuring robust risk transfer through leading insurance structures.",
-    keyBenefits: [
-      "Comprehensive coverage analysis",
-      "Best-in-class insurance products",
-      "Claims assistance support",
-      "Regular policy reviews",
-      "Family protection planning",
-    ],
-    process: [
-      "Need Assessment - Evaluating your protection requirements",
-      "Gap Analysis - Identifying coverage gaps",
-      "Product Selection - Choosing appropriate insurance products",
-      "Policy Procurement - Securing optimal coverage",
-      "Claim Support - Assisting during claims",
-    ],
-    offerings: [
-      "Two & Four Wheeler Insurance",
-      "Commercial Vehicle Insurance",
-      "Health Insurance",
-      "Term Insurance",
-      "Life Insurance",
-      "Pension Schemes",
-      "Travel Insurance",
-      "Home & Shop Insurance",
-      "Industrial Insurance",
-    ],
-  },
-  {
-    icon: Calculator,
-    title: "Tax Mitigation Strategy",
-    description: "Strategic optimization of your tax exposures, utilizing legally sound structuring and tax-efficient asset selection.",
-    keyBenefits: [
-      "Maximize tax savings legally",
-      "ELSS and 80C optimization",
-      "Tax-efficient investment planning",
-      "Capital gains management",
-      "Comprehensive tax reporting",
-    ],
-    process: [
-      "Tax Review - Analyzing your current tax situation",
-      "Deduction Mapping - Identifying all available deductions",
-      "Strategy Formulation - Creating tax-efficient plans",
-      "Investment Selection - Choosing tax-saving instruments",
-      "Documentation - Maintaining proper records",
-    ],
-    offerings: [
-      "Section 80C Deductions (LIC, PPF, ELSS, FD)",
-      "Section 80D Health Insurance",
-      "Section 24 Home Loan Interest",
-      "Section 80E Education Loan",
-      "Capital Gains Planning",
-      "Business Loss Optimization",
-    ],
-  },
-  {
-    icon: Briefcase,
-    title: "Retirement Planning",
-    description: "Disciplined asset transition and decumulation structures designed to preserve purchasing power and legacy continuity.",
-    keyBenefits: [
-      "Corpus calculation based on lifestyle needs",
-      "Multiple income stream creation",
-      "Inflation-adjusted planning",
-      "Healthcare cost coverage",
-      "Legacy and estate planning",
-    ],
-    process: [
-      "Lifestyle Analysis - Understanding retirement expectations",
-      "Corpus Calculation - Determining required savings",
-      "Investment Strategy - Building retirement portfolio",
-      "Income Planning - Creating post-retirement income",
-      "Estate Planning - Ensuring smooth wealth transfer",
-    ],
-    offerings: [
-      "SWP (Systematic Withdrawal Plan)",
-      "Senior Citizen Instruments",
-      "Pension Plans",
-      "Government Schemes",
-    ],
-  },
-];
+export default function ServicesPage() {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-const ServicesPage = () => {
-  const [expandedService, setExpandedService] = useState<number | null>(null);
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-[#070B14] text-[#F5F1E8] selection:bg-[#C9A24B]/30 selection:text-[#F5F1E8] overflow-x-hidden">
       <Navbar />
       <StockTicker />
+
       <main>
+        {/* Editorial Hero Header (Shared section spacing ~96-128px, no hairline, no min-height) */}
+        <section className="relative py-24 lg:py-32 overflow-hidden">
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#C9A96E]/[0.03] rounded-full blur-[140px] pointer-events-none" />
 
-      {/* Hero Section */}
-      <section className="py-28 md:py-36 hero-gradient relative overflow-hidden border-b border-border/10">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-        </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-3xl mx-auto text-center space-y-6"
-          >
-            <span className="text-primary text-xs uppercase tracking-widest font-semibold bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">
-              Our Capabilities
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight mt-4">
-              Personalized Wealth Solutions <br />
-              <span className="gold-text">Built Around Your Goals</span>
-            </h1>
-            <p className="text-base md:text-lg text-muted-foreground/90 max-w-xl mx-auto font-light leading-relaxed">
-              Our SEBI-registered advisors deliver comprehensive wealth strategies engineered to preserve capital, optimize tax exposures, and fund your family's lifelong milestones.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+          <div className="w-full max-w-[1152px] mx-auto px-6 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="max-w-3xl space-y-6"
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C9A96E]/10 border border-[#C9A96E]/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C9A96E]" />
+                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#C9A96E] font-semibold">
+                  Institutional Capabilities
+                </span>
+              </div>
 
-      {/* Services Accordion List */}
-      <section className="py-28">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto space-y-6">
-            {services.map((service, index) => {
-              const isExpanded = expandedService === index;
-              return (
-                <motion.div
-                  key={service.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05, duration: 0.5 }}
-                  className={`glass-card rounded-2xl overflow-hidden border transition-all duration-300 relative group ${
-                    isExpanded 
-                      ? "border-primary/30 bg-gradient-to-b from-slate-900/40 via-slate-950/20 to-slate-950/10 shadow-lg shadow-primary/[0.02]" 
-                      : "border-border/30 hover:border-primary/20 hover:-translate-y-[2px] bg-slate-950/20 shadow-sm"
-                  }`}
-                >
-                  {/* Subtle animated border slide-across line on card bottom */}
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2.5px] bg-primary group-hover:w-full transition-all duration-500 z-10" />
-                  {/* Service Header Trigger */}
-                  <button
-                    onClick={() => setExpandedService(isExpanded ? null : index)}
-                    className="w-full p-6 md:p-8 flex items-center gap-5 md:gap-6 text-left transition-colors relative group"
-                  >
-                    {/* Glowing gold back-gradient on active header */}
-                    {isExpanded && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.03] to-transparent pointer-events-none" />
+              <h1 className="font-serif text-3xl sm:text-5xl lg:text-[54px] leading-[1.12] text-[#F5F1E8] font-normal tracking-tight">
+                Comprehensive wealth solutions, <br />
+                <span className="italic text-[#C9A96E]">engineered for compounding.</span>
+              </h1>
+
+              <p className="text-[#A8B0BD] text-sm sm:text-base font-sans font-light max-w-2xl leading-relaxed [text-wrap:pretty]">
+                Six specialized fiduciary disciplines delivered under strict SEBI-registered oversight. 
+                Direct access to investment leadership, institutional execution rigor, and absolute zero distributor commissions.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Numbered List & Detail Accordion Section (Shared container: max-width 1152px, margin-inline:auto, 24px side padding) */}
+        <section className="pb-24 lg:pb-32 relative">
+          <div className="w-full max-w-[1152px] mx-auto px-6 relative z-10">
+            <div className="border-t border-white/[0.08]">
+              {servicesData.map((service) => {
+                const isExpanded = expandedId === service.id;
+
+                return (
+                  <div
+                    key={service.id}
+                    className={cn(
+                      "group relative transition-all duration-300",
+                      isExpanded
+                        ? "bg-[#0B1020] border border-[#C9A96E]/30 rounded-2xl shadow-xl my-4 overflow-hidden"
+                        : "border-b border-white/[0.08] hover:border-b-[rgba(201,169,110,0.5)] focus-within:border-b-[rgba(201,169,110,0.5)] hover:bg-white/[0.02]"
                     )}
+                    onMouseEnter={() => setHoveredId(service.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    {/* Top Clickable Row Header: 48px index | title block | description | 48px chevron */}
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(service.id)}
+                      aria-expanded={isExpanded}
+                      aria-controls={`service-detail-${service.id}`}
+                      className="w-full text-left py-7 lg:py-8 px-6 sm:px-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A96E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#070B14] rounded-2xl cursor-pointer"
+                    >
+                      <div className="grid grid-cols-[48px_1fr_48px] md:grid-cols-[48px_300px_1fr_48px] lg:grid-cols-[48px_360px_1fr_48px] items-center gap-4 sm:gap-6 lg:gap-8">
+                        {/* 1. 48px Index */}
+                        <span className="font-mono text-xs sm:text-sm text-[#C9A96E]/80 group-hover:text-[#C9A96E] font-medium w-12 text-left shrink-0">
+                          {service.number}
+                        </span>
 
-                    <div className="w-14 h-14 rounded-2xl border border-primary/20 bg-primary/5 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-[0_0_15px_rgba(218,165,32,0.03)]">
-                      <service.icon className="h-6 w-6 text-primary" />
-                    </div>
+                        {/* 2. Title Block: title on first line, tag ALWAYS on own line below */}
+                        <div className="flex flex-col justify-center min-w-0">
+                          <h2 className="font-serif text-2xl lg:text-[28px] font-normal text-[#F5F1E8] group-hover:text-white transition-colors duration-200 tracking-tight leading-snug [text-wrap:balance]">
+                            {service.title}
+                          </h2>
+                          <span className="block text-[11px] font-mono uppercase tracking-[0.2em] text-[#C9A96E] mt-1 font-medium">
+                            {service.teaserTag}
+                          </span>
+                        </div>
 
-                    <div className="flex-1 space-y-1">
-                      <h3 className="text-lg md:text-xl font-bold font-display text-foreground group-hover:text-primary transition-colors duration-300">
-                        {service.title}
-                      </h3>
-                      <p className="text-muted-foreground/85 text-xs md:text-sm font-light leading-relaxed max-w-2xl">
-                        {service.description}
-                      </p>
-                    </div>
+                        {/* 3. Description Column starting at the same x in every row */}
+                        <div className="min-w-0 col-span-full md:col-span-1 md:col-start-3">
+                          <p className="text-xs sm:text-[14px] text-[#A8B0BD] font-sans font-light leading-relaxed">
+                            {service.shortDesc}
+                          </p>
+                        </div>
 
-                    <div className="w-9 h-9 rounded-full border border-border/50 flex items-center justify-center shrink-0 group-hover:border-primary/45 transition-colors">
-                      <ChevronDown 
-                        className={`h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-300 ${
-                          isExpanded ? "rotate-180 text-primary" : ""
-                        }`} 
+                        {/* 4. 48px Chevron Button */}
+                        <div className="flex justify-end col-start-3 md:col-start-4">
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 shrink-0",
+                              isExpanded
+                                ? "bg-[#C9A96E] text-[#070B14] border-[#C9A96E] shadow-[0_0_18px_rgba(201,169,110,0.35)]"
+                                : "border-white/15 text-slate-300 group-hover:border-[#C9A96E] group-hover:text-[#C9A96E]"
+                            )}
+                          >
+                            <ChevronDown
+                              className={cn(
+                                "w-5 h-5 transition-transform duration-300 motion-reduce:duration-0",
+                                isExpanded ? "rotate-180" : ""
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Hover preview in right gutter: viewports >= 1440px only, fixed 280x180, never overlaps text */}
+                    <div
+                      className="pointer-events-none hidden min-[1440px]:block absolute left-[calc(50%+576px+24px)] top-1/2 -translate-y-1/2 w-[280px] h-[180px] rounded-xl overflow-hidden border border-white/15 bg-[#0B1020] shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-30 transition-opacity duration-150 motion-reduce:transition-none"
+                      style={{
+                        opacity: hoveredId === service.id && !isExpanded ? 1 : 0,
+                      }}
+                    >
+                      <img
+                        src={service.hoverImage}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-full h-full object-cover object-center"
+                        loading="lazy"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#070B14]/85 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-[11px] font-mono uppercase tracking-widest text-[#F5F1E8]">
+                        <span className="text-[#C9A96E] font-medium">{service.number}</span>
+                        <span className="text-[#A8B0BD] font-sans normal-case text-xs">
+                          {service.teaserTag}
+                        </span>
+                      </div>
                     </div>
-                  </button>
 
-                  {/* Expanded Content Details */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.35, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-6 pb-8 md:px-10 md:pb-10 grid md:grid-cols-3 gap-10 border-t border-border/10 pt-8 bg-[#02050c]/20">
-                          
-                          {/* Column 1: Key Benefits */}
-                          <div className="space-y-5">
-                            <h4 className="text-xs font-bold uppercase tracking-[0.18em] text-primary flex items-center gap-2 border-b border-border/10 pb-3">
-                              Key Benefits
-                            </h4>
-                            <ul className="space-y-3.5">
-                              {service.keyBenefits.map((benefit, i) => (
-                                <motion.li
-                                  key={i}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: i * 0.04 }}
-                                  className="flex items-start gap-3"
-                                >
-                                  <Check className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
-                                  <span className="text-muted-foreground/90 text-xs md:text-sm font-light leading-relaxed">
-                                    {benefit}
-                                  </span>
-                                </motion.li>
-                              ))}
-                            </ul>
-                          </div>
+                    {/* Merged Detail Panel (Single card with header, subtle divider inside) */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          id={`service-detail-${service.id}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: "easeInOut" }}
+                          className="overflow-hidden motion-reduce:transition-none"
+                        >
+                          {/* Subtle Internal Divider */}
+                          <div className="border-t border-white/[0.08] mx-6 sm:mx-8" />
 
-                          {/* Column 2: Our Process */}
-                          <div className="space-y-5">
-                            <h4 className="text-xs font-bold uppercase tracking-[0.18em] text-primary border-b border-border/10 pb-3">
-                              Our Process
-                            </h4>
-                            <ol className="relative border-l border-primary/20 pl-3 ml-3 space-y-5">
-                              {service.process.map((step, i) => {
-                                const parts = step.split(" - ");
-                                const stepTitle = parts[0];
-                                const stepDesc = parts.slice(1).join(" - ");
-                                return (
-                                  <motion.li
-                                    key={i}
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.04 }}
-                                    className="relative pl-6"
-                                  >
-                                    {/* Ring Step Badge */}
-                                    <span className="absolute -left-[22.5px] top-0 w-[18px] h-[18px] rounded-full bg-slate-950 border border-primary/45 flex items-center justify-center text-[9px] text-primary font-bold shadow-[0_0_8px_rgba(218,165,32,0.1)]">
-                                      {i + 1}
-                                    </span>
-                                    <h5 className="text-xs md:text-sm font-semibold text-foreground">
-                                      {stepTitle}
-                                    </h5>
-                                    {stepDesc && (
-                                      <p className="text-[11px] leading-relaxed text-muted-foreground/80 mt-1 font-light">
-                                        {stepDesc}
+                          {/* Expanded Content Grid: 1fr 1.3fr 0.8fr with 48px gap (lg:), 1 column stacked below 1024px */}
+                          <div className="px-6 sm:px-8 pt-6 pb-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr_0.8fr] gap-y-10 lg:gap-x-12 items-start">
+                              {/* Column 1: Key Fiduciary Benefits */}
+                              <div className="space-y-4">
+                                <h4 className="text-[12px] font-mono uppercase tracking-[0.2em] text-[#C9A96E] border-b border-white/[0.08] pb-3 font-semibold">
+                                  Key Fiduciary Benefits
+                                </h4>
+                                <ul className="space-y-3 pt-1">
+                                  {service.keyBenefits.map((benefit, i) => (
+                                    <li
+                                      key={i}
+                                      className="flex items-start gap-3"
+                                    >
+                                      <Check className="h-4 w-4 text-[#C9A96E] shrink-0 mt-1" />
+                                      <span className="text-[15px] sm:text-[16px] text-[#E6E9EF] font-sans font-light leading-relaxed">
+                                        {benefit}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+
+                              {/* Column 2: Our 5-Step Process */}
+                              <div className="space-y-4">
+                                <h4 className="text-[12px] font-mono uppercase tracking-[0.2em] text-[#C9A96E] border-b border-white/[0.08] pb-3 font-semibold">
+                                  Our 5-Step Process
+                                </h4>
+                                <ol className="relative border-l border-[#C9A96E]/25 pl-5 ml-3 space-y-2.5 pt-1">
+                                  {service.process.map((step, i) => (
+                                    <li
+                                      key={i}
+                                      className="relative pl-3"
+                                    >
+                                      <span className="absolute -left-[32px] top-0 w-[24px] h-[24px] rounded-full bg-[#070B14] border border-[#C9A96E] flex items-center justify-center text-[12px] text-[#C9A96E] font-mono font-semibold [font-variant-numeric:lining-nums] shadow-[0_0_8px_rgba(201,169,110,0.2)]">
+                                        {step.step}
+                                      </span>
+                                      <h5 className="text-[16px] font-semibold text-white leading-snug [text-wrap:balance]">
+                                        {step.title}
+                                      </h5>
+                                      <p className="text-[14px] leading-[1.55] text-[#A8B0BD] font-sans font-light mt-1">
+                                        {step.description}
                                       </p>
-                                    )}
-                                  </motion.li>
-                                );
-                              })}
-                            </ol>
-                          </div>
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
 
-                          {/* Column 3: Offerings/Instruments */}
-                          <div className="space-y-5">
-                            <h4 className="text-xs font-bold uppercase tracking-[0.18em] text-primary border-b border-border/10 pb-3">
-                              {service.instruments ? "Asset Classes Covered" : "Our Offerings"}
-                            </h4>
-                            <div className="flex flex-wrap gap-2 pt-1">
-                              {(service.offerings || service.instruments)?.map((offering, i) => (
-                                <motion.div
-                                  key={i}
-                                  initial={{ opacity: 0, scale: 0.95 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  transition={{ delay: i * 0.03 }}
-                                  className="px-3.5 py-1.5 rounded-xl bg-[#030712]/50 border border-border/40 hover:border-primary/30 hover:bg-primary/[0.02] hover:text-primary transition-all duration-300 text-xs text-muted-foreground/85 cursor-default font-light tracking-wide shadow-sm"
-                                >
-                                  {offering}
-                                </motion.div>
-                              ))}
+                              {/* Column 3: Offerings / Asset Classes */}
+                              <div className="space-y-4">
+                                <h4 className="text-[12px] font-mono uppercase tracking-[0.2em] text-[#C9A96E] border-b border-white/[0.08] pb-3 font-semibold">
+                                  {service.assetClasses ? "Asset Classes & Structuring" : "Our Offerings"}
+                                </h4>
+                                <div className="flex flex-wrap gap-2 pt-1">
+                                  {(service.assetClasses || service.offerings || []).map((offering, i) => (
+                                    <span
+                                      key={i}
+                                      className="h-[34px] px-3.5 inline-flex items-center justify-center rounded-xl bg-white/[0.03] border border-white/10 hover:border-[#C9A96E]/40 hover:bg-[#C9A96E]/[0.05] hover:text-[#C9A96E] transition-all text-[13px] text-[#E6E9EF] font-sans font-light tracking-wide cursor-default"
+                                    >
+                                      {offering}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Bottom Action Bar */}
+                            <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                              <Link
+                                to="/contact"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#C9A96E] text-[#070B14] font-medium text-xs uppercase tracking-wider hover:bg-[#d8b15a] transition-all duration-300 shadow-[0_0_20px_rgba(201,169,110,0.2)] group shrink-0"
+                              >
+                                <span>Book a Consultation for this Service</span>
+                                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                              </Link>
+
+                              <Link
+                                to={`/services/${service.slug}`}
+                                className="inline-flex items-center justify-center sm:justify-start gap-2 text-sm font-sans font-medium text-[#C9A96E] hover:underline underline-offset-4 transition-all group"
+                              >
+                                <span>Explore In-Depth Whitepaper &amp; Methodology</span>
+                                <ArrowRight className="w-4 h-4 text-[#C9A96E] transition-transform group-hover:translate-x-1" />
+                              </Link>
                             </div>
                           </div>
-
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <CTA />
+        <CTA
+          pill="OUR SERVICES"
+          headlineLead="Find the advisory that"
+          headlineEmphasis="fits your goals."
+          subtitle="Tell us where you are today and we will outline which of our services suit your situation, with the fee structure explained upfront."
+          buttonLabel="Book a Consultation"
+        />
       </main>
+
       <Footer />
     </div>
   );
-};
-
-export default ServicesPage;
+}
