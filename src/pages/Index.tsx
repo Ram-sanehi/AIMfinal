@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { LiveMarketTicker } from "@/components/LiveMarketTicker";
@@ -10,9 +9,6 @@ import { TrustedInvestors } from "@/components/TrustedInvestors";
 import { FAQSection } from "@/components/FAQSection";
 import { CTA } from "@/components/CTA";
 import { Footer } from "@/components/Footer";
-
-// Lazy-load heavy non-critical floating actions
-const FloatingChat = lazy(() => import("@/components/FloatingChat").then(m => ({ default: m.FloatingChat })));
 
 const Index = () => {
   return (

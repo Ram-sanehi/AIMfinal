@@ -8,10 +8,14 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { CookieConsent } from "@/components/CookieConsent";
 import { FloatingChat } from "@/components/FloatingChat";
 import { SEO } from "@/components/SEO";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { initializeUtmTracking } from "@/utils/utmTracker";
 
-// Route-level code splitting — each page loads as its own JS chunk
-const Index = lazy(() => import("./pages/Index"));
+// Critical core pages imported directly (zero secondary chunk delay or suspense blank screen)
+import Index from "./pages/Index";
+import Contact from "./pages/Contact";
+
+// Deferred pages loaded dynamically
 const About = lazy(() => import("./pages/About"));
 const Services = lazy(() => import("./pages/Services"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
@@ -21,15 +25,20 @@ const Insights = lazy(() => import("./pages/Insights"));
 const InsightDetail = lazy(() => import("./pages/InsightDetail"));
 const Downloads = lazy(() => import("./pages/Downloads"));
 const Empanelment = lazy(() => import("./pages/Empanelment"));
-const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Disclaimer = lazy(() => import("./pages/Disclaimer"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Minimal background-colored fallback to prevent flash
+// Branded fallback with subtle indicator so screen is never blank
 const PageFallback = () => (
-  <div style={{ minHeight: "100vh", background: "#070B14" }} aria-hidden="true" />
+  <div
+    style={{ minHeight: "100vh", background: "#070B14" }}
+    className="flex items-center justify-center"
+    aria-label="Loading page"
+  >
+    <div className="w-8 h-8 rounded-full border-2 border-[#C9A24B]/30 border-t-[#C9A24B] animate-spin" />
+  </div>
 );
 
 const queryClient = new QueryClient();
@@ -83,7 +92,9 @@ function App() {
             <SEO />
             <Toaster />
             <Sonner />
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
             <FloatingChat />
             <CookieConsent />
           </BrowserRouter>
