@@ -348,14 +348,25 @@ export function Footer() {
           </div>
         </div>
 
-        {/* DIVIDER 2 + ROW 4: Bottom bar (Single 1px hairline above bottom bar, padding ~20-24px, one line at 13px, copyright left, links right) */}
+        {/* DIVIDER 2 + ROW 4: Bottom bar (Single 1px hairline above bottom bar, padding ~20-24px, one line at 13px, copyright & credit left, links right) */}
         <div className="border-t border-white/10 py-5 sm:py-6 mt-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] font-sans text-[#A8B0BD] w-full">
-            {/* Left: Copyright */}
-            <p>© 2026 Alpha Investment Management. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] font-sans text-[#A8B0BD] w-full">
+            {/* Left: Copyright & Studio Credit */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
+              <p>© 2026 Alpha Investment Management. All rights reserved.</p>
+              <span className="hidden sm:inline text-white/20 select-none" aria-hidden="true">·</span>
+              <a
+                href="https://scalvex.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#8E97A6] hover:text-[#C9A24B] transition-colors duration-200 text-xs sm:text-[13px]"
+              >
+                Designed by <span className="text-[#D0D7E2] hover:text-[#C9A24B] font-medium transition-colors">Scalvex</span>
+              </a>
+            </div>
 
             {/* Right: Text links right-aligned with consistent spacing */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-2">
               <Link
                 to="/privacy"
                 className="hover:text-[#F5F1E8] transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-sm"

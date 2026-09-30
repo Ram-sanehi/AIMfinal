@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build:downloads": "python3 src/scripts/generate_downloads_pdf.py",
-    "prebuild": "npm run build:downloads",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
